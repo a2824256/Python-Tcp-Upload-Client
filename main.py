@@ -82,16 +82,21 @@ class Main(QWidget):
                             content = localtime + ' ' + file + '开始上传\n'
                             self.signal_log.emit(content)
                             self.send_file(sk, dir, file)
-        sk.close()
+                            content = sk.recv(4)
+                            content = content.decode('utf-8')
+                            if '0' in content:
+                                os.remove(os.path.join(STORE_PATH, dir, file))
         localtime = self.get_localtime()
         content = localtime + ' 上传结束\n'
         self.signal_log.emit(content)
         self.signal_transmit.emit()
         FILE_COUNTER = 0
 
+    def get_integrity_checking(self):
+        return 0
+
 
     def send_file(self, sk, file_path, filename):
-        # 定制我们的报头，这里的报头不是唯一的，你可以根据你的想法去更改
         head = {'l': FILE_COUNTER,
                 'filepath': file_path,
                 'filename': filename,
