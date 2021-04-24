@@ -6,3 +6,6 @@ https://github.com/a2824256/Python-Tcp-Upload-Server
 
 # Pyinstaller打包相关问题汇总
 https://blog.csdn.net/a2824256/article/details/114699656
+
+## Demo
+<img src="./sc.png" />
