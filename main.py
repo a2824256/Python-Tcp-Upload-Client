@@ -7,6 +7,8 @@ import sys
 import threading
 import time
 
+os.environ['QT_QPA_PLATFORM_PLUGIN_PATH'] = './platforms'
+
 from PySide2.QtWidgets import QApplication, QWidget, QFileDialog
 from PySide2.QtCore import QFile, Signal
 from PySide2.QtUiTools import QUiLoader
@@ -26,7 +28,7 @@ class Main(QWidget):
 
     def load_ui(self):
         loader = QUiLoader()
-        path = os.path.join(os.path.dirname(__file__), "form.ui")
+        path = "./form.ui"
         ui_file = QFile(path)
         ui_file.open(QFile.ReadOnly)
         self.ui = loader.load(ui_file, self)
