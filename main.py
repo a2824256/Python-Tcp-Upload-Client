@@ -62,32 +62,29 @@ class Main(QWidget):
         thread.start()
 
     def upload_files(self):
+        print('upload')
         global FILE_COUNTER
         sk = socket.socket()
         sk.connect((self.ip, 60000))
-        for _, dirs, _ in os.walk(STORE_PATH):
-            for dir in dirs:
-                if dir != '':
-                    path = os.path.join(STORE_PATH, dir)
-                    for _, _, files in os.walk(path):
-                        for file in files:
-                            FILE_COUNTER += 1
+        for root, dirs, files in os.walk(self.path):
+            for file in files:
+                FILE_COUNTER += 1
         localtime = self.get_localtime()
         content = localtime + ' ' + str(FILE_COUNTER) + '个文件开始上传\n'
         self.signal_log.emit(content)
-        for _, dirs, _ in os.walk(STORE_PATH):
-            for dir in dirs:
-                if dir != '':
-                    for _, _, files in os.walk(os.path.join(STORE_PATH, dir)):
-                        for file in files:
-                            localtime = self.get_localtime()
-                            content = localtime + ' ' + file + '开始上传\n'
-                            self.signal_log.emit(content)
-                            self.send_file(sk, dir, file)
-                            content = sk.recv(4)
-                            content = content.decode('utf-8')
-                            if '0' in content:
-                                os.remove(os.path.join(STORE_PATH, dir, file))
+        for root, dirs, files in os.walk(self.path):
+            for file in files:
+                res = root.find(self.path)
+                if res != -1:
+                    file_path = root.replace(self.path, '')
+                    localtime = self.get_localtime()
+                    content = localtime + ' ' + file + '开始上传\n'
+                    self.signal_log.emit(content)
+                    self.send_file(sk, file_path, file)
+                    content = sk.recv(4)
+                    content = content.decode('utf-8')
+                    if '0' in content:
+                        os.remove(os.path.join(self.path.replace('/', '\\') + file_path, file))
         localtime = self.get_localtime()
         content = localtime + ' 上传结束\n'
         self.signal_log.emit(content)
@@ -103,7 +100,7 @@ class Main(QWidget):
                 'filepath': file_path,
                 'filename': filename,
                 'filesize': None}
-        file_path = os.path.join(STORE_PATH, file_path, head['filename'])
+        file_path = os.path.join(self.path.replace('/', '\\') + file_path, filename)
         # 计算文件的大小
         filesize = os.path.getsize(file_path)
         head['filesize'] = filesize
