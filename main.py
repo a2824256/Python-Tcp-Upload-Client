@@ -16,6 +16,7 @@ FILE_COUNTER = 0
 STORE_PATH = os.path.join(os.getcwd(), 'upload')
 print(STORE_PATH)
 buffer = 1024
+DELETE_SOURCE = False
 
 class Main(QWidget):
     signal_log = Signal(str)
@@ -55,6 +56,8 @@ class Main(QWidget):
         return str(time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()))
 
     def start_upload_thread(self):
+        global DELETE_SOURCE
+        DELETE_SOURCE = self.ui.checkBox.isChecked()
         self.ip = self.ui.ipBox.toPlainText()
         self.ui.startButton.setEnabled(False)
         print(self.ip)
@@ -83,7 +86,7 @@ class Main(QWidget):
                     self.send_file(sk, file_path, file)
                     content = sk.recv(4)
                     content = content.decode('utf-8')
-                    if '0' in content:
+                    if '0' in content and DELETE_SOURCE is True:
                         os.remove(os.path.join(self.path.replace('/', '\\') + file_path, file))
         localtime = self.get_localtime()
         content = localtime + ' 上传结束\n'
